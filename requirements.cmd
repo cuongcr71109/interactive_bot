@@ -4,3 +4,4 @@ pip install openpyxl
 pip install pySimplegui
 pip install mysql
 pip install pandas
+pip install pymysql
