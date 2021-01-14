@@ -1,30 +1,39 @@
-from tkinter import Event
 import PySimpleGUI as sg
 import pandas as pd
 import mysql.connector
+from db import *
 import db
-from db import*
-
-account = []
-content = []
-order = []
 
 def getExcel():
+    # get file path in gui windows
     import_file_path = values['file']
+
+    # read data from excel file
     data = pd.read_excel(import_file_path)
-    
 
-    # global account, content, order
+    # convert data to dataframe
+    df = pd.DataFrame(data=data)
 
+    # Result:
+    #        Account Content  Order
+    # 0     Quan     abc      1
+    # 1    Cuong     Xyz      2
+    # 2     Phuc     Dce      3
+    # 3      Duc     ghf      1
+    # 4    Khang     abc      2
+
+    # get data along columns Account, Content, Order
     val= data.values.tolist()
+
+    # Result:
+    # [('Quan', 'abc', 1), ('Cuong', 'Xyz', 2), ('Phuc', 'Dce', 3), ('Duc', 'ghf', 1), ('Khang', 'abc', 2)]
+
     return val
-    
     
 
 
 def upload():
-    
-    
+
     sql = "INSERT INTO data_tbl (account_name, text_content, ordered) VALUES (%s, %s, %s)"
     data = getExcel()
     mycursor.executemany(sql, data)
@@ -34,6 +43,7 @@ def upload():
 window_title = 'Insert data'
 window_loc = (0,0)
 window_size = (800, 600)
+
 
 layout = [
     [sg.Text('Choose file .xlsx to import:')],
