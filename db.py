@@ -34,4 +34,3 @@ def insertData(account_name, text_content, ordered):
 insertData('Kim Duc BT','An chot','1')
 
 
-

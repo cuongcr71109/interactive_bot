@@ -33,6 +33,7 @@ def getExcel():
 
 
 def upload():
+
     sql = "INSERT INTO data_tbl (account_name, text_content, ordered) VALUES (%s, %s, %s)"
     data = getExcel()
     mycursor.executemany(sql, data)
@@ -44,7 +45,6 @@ window_loc = (0,0)
 window_size = (800, 600)
 
 
-# GUI Window Layout
 layout = [
     [sg.Text('Choose file .xlsx to import:')],
     [sg.Input('Choose file .xlsx to import:', key='file'),
