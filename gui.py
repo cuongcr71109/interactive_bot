@@ -42,14 +42,13 @@ def upload():
 
 window_title = 'Insert data'
 window_loc = (0,0)
-window_size = (800, 600)
+window_size = (500, 100)
 
 
 layout = [
-    [sg.Text('Choose file .xlsx to import:')],
+    [sg.Text('Insert dialogue data:', font=('Times New Roman', 20)),sg.Text('_'*80)],
     [sg.Input('Choose file .xlsx to import:', key='file'),
-     sg.FileBrowse(file_types=(("Excel Files", "*.xlsx"), ("All Files", "*.*")))],
-     [sg.Button('OK')]
+     sg.FileBrowse(file_types=(("Excel Files", "*.xlsx"), ("All Files", "*.*"))), sg.Button('OK')]
 ]
 
 window = sg.Window(title=window_title, size=window_size, location=window_loc, layout=layout)
