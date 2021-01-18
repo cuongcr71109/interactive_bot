@@ -1,36 +1,59 @@
-import mysql.connector
+import mysql.connector 
+import pandas as pd 
 
-datab= mysql.connector.connect(
-            host="localhost",
-            user="root", #write your user
-            password="", #write your password
-            database="interactive_bot", #write your database_name
-)
-mycursor= datab.cursor()
 
-if mycursor:
-    print("connected")
+mydb = mysql.connector.connect(host='localhost', username='root', password='', database='interact_tool')
+cursor = mydb.cursor()
+
+if cursor:
+    print('Connected to DB.')
 else:
-    print("fail connected")
+    print('Connect failed')
+
+def empty_table():
+    query = 'TRUNCATE TABLE dialogue'
+    cursor.execute(query)
+    mydb.commit()
+
+# import dialogue data from Excel file
+def getExcel():
+    import_file_path = 'Dialogue.xlsx'
+    data = pd.read_excel(import_file_path)
+    val = data.values.tolist()
+    return val
+
+def insertData():
+    empty_table()
+    query =  "INSERT INTO dialogue (user_id, content, group_id) VALUES (%s, %s, %s)"
+    val = getExcel()
+    cursor.executemany(query, val)
+    mydb.commit()
+    print(cursor.rowcount, "was inserted to database")
+
+# get users info from database
+def getUser():
+    query = "SELECT * FROM users"
+    cursor.execute(query)
+    users = cursor.fetchall()
+    print('users', users, type(users))
+    print('--------------')
+    return users
 
 
-#insert data
-def insertData(account_name, text_content, ordered):
-    sql = "INSERT INTO data_tbl (account_name, text_content, ordered) VALUES (%s, %s, %s)"
-    val= (account_name,text_content, ordered)
-    mycursor.execute(sql,val)
-    datab.commit()
+# get groups info from database
+def getGroup():
+    query = "SELECT * FROM groups"
+    cursor.execute(query)
+    groups = cursor.fetchall()
+    print('groups', groups, type(groups), type(groups[0][0]))
+    print('--------------')
+    return groups
 
-
-
-#get data
-# def selectData():
-#    sql= "SELECT * FROM data_tbl "
-#    mycusor.excute(sql)
-#    res= mycusor.fetchall()
-#    for i in res:
-#        print(i)
-
-insertData('Kim Duc BT','An chot','1')
-
-
+# get dialogue data from database
+def getDialogue():
+    query = "SELECT * FROM dialogue"
+    cursor.execute(query)
+    dialogue = cursor.fetchall()
+    print('dialogue', dialogue, type(dialogue))
+    print('--------------')
+    return dialogue
