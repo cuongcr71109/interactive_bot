@@ -2,8 +2,9 @@ from telethon import TelegramClient
 from time import sleep
 from db import *
 
-getExcel()
-insertData()
+insertUsers()
+insertGroups()
+insertDialog()
 users = getUser()
 groups = getGroup()
 dialogue = getDialogue()
@@ -20,10 +21,11 @@ async def interact(client, group_id, content):
 for dial in dialogue:
     group_id = int(dial[3])
     content = dial[2]
-    query = 'SELECT api_id, api_hash, phone FROM users WHERE user_id = {}'.format(dial[1])
+    query = 'SELECT api_id, api_hash, phone FROM users WHERE id = {}'.format(dial[1])
     cursor.execute(query)
     user = cursor.fetchall()
 
     client = TelegramClient(session='{}'.format(user[0][2]), api_id = int(user[0][0]), api_hash = user[0][1])
     with client:
-        client.loop.run_until_complete(interact(client, group_id, content))
+        print('sent')
+        # client.loop.run_until_complete(interact(client, group_id, content))

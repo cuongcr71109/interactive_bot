@@ -16,19 +16,38 @@ def empty_table():
     mydb.commit()
 
 # import dialogue data from Excel file
-def getExcel():
-    import_file_path = 'Dialogue.xlsx'
-    data = pd.read_excel(import_file_path)
+def getExcel(file):
+    print(file, type(file))
+    # import_file_path = 'dialogue.xlsx'
+    data = pd.read_excel(file)
     val = data.values.tolist()
     return val
 
-def insertData():
-    empty_table()
-    query =  "INSERT INTO dialogue (user_id, content, group_id) VALUES (%s, %s, %s)"
-    val = getExcel()
+# get data from excel file and insert data to database
+def insertUsers():
+    # empty_table()
+    query =  "INSERT IGNORE INTO users (id, api_id, api_hash, username, phone) VALUES (%s, %s, %s, %s, %s)"
+    val = getExcel('users.xlsx')
     cursor.executemany(query, val)
     mydb.commit()
-    print(cursor.rowcount, "was inserted to database")
+    print(cursor.rowcount, "was inserted to [users] table")
+
+def insertGroups():
+    # empty_table()
+    query =  "INSERT IGNORE INTO groups (id, group_id, group_title, group_type, group_link) VALUES (%s, %s, %s, %s, %s)"
+    val = getExcel('groups.xlsx')
+    cursor.executemany(query, val)
+    mydb.commit()
+    print(cursor.rowcount, "was inserted to [groups] table")
+
+def insertDialog():
+    # empty_table()
+    query =  "INSERT IGNORE INTO dialogue (id, user_id, content, group_id) VALUES (%s, %s, %s, %s)"
+    val = getExcel('dialogue.xlsx')
+    cursor.executemany(query, val)
+    mydb.commit()
+    print(cursor.rowcount, "was inserted to [dialog] table")
+
 
 # get users info from database
 def getUser():
