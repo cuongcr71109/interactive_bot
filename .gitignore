@@ -134,3 +134,7 @@ TEST/
 test/
 itf_tournaments.csv
 test.py
+
+
+# git commit and push
+pushgit.cmd

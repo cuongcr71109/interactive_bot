@@ -8,6 +8,8 @@ users = getUser()
 groups = getGroup()
 dialogue = getDialogue()
 
+
+
 async def interact(client, group_id, content):
     me = await client.get_me()
     await client.send_message(group_id, content)
