@@ -17,8 +17,6 @@ def empty_table():
 
 # import dialogue data from Excel file
 def getExcel(file):
-    print(file, type(file))
-    # import_file_path = 'dialogue.xlsx'
     data = pd.read_excel(file)
     val = data.values.tolist()
     return val
@@ -26,7 +24,7 @@ def getExcel(file):
 # get data from excel file and insert data to database
 def insertUsers():
     # empty_table()
-    query =  "INSERT IGNORE INTO users (id, api_id, api_hash, username, phone) VALUES (%s, %s, %s, %s, %s)"
+    query =  "INSERT IGNORE INTO users (id, user_id, api_id, api_hash, username, phone) VALUES (%s, %s, %s, %s, %s, %s)"
     val = getExcel('users.xlsx')
     cursor.executemany(query, val)
     mydb.commit()
@@ -34,8 +32,9 @@ def insertUsers():
 
 def insertGroups():
     # empty_table()
-    query =  "INSERT IGNORE INTO groups (id, group_id, group_title, group_type, group_link) VALUES (%s, %s, %s, %s, %s)"
     val = getExcel('groups.xlsx')
+    # val [[1, -1001158850531, 'Test BOT', 'private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0']]
+    query =  "INSERT IGNORE INTO groups (id, group_id, group_title, group_type, group_link) VALUES (%s, %s, %s, %s, %s)"
     cursor.executemany(query, val)
     mydb.commit()
     print(cursor.rowcount, "was inserted to [groups] table")
@@ -54,8 +53,6 @@ def getUser():
     query = "SELECT * FROM users"
     cursor.execute(query)
     users = cursor.fetchall()
-    print('users', users, type(users))
-    print('--------------')
     return users
 
 
@@ -64,8 +61,6 @@ def getGroup():
     query = "SELECT * FROM groups"
     cursor.execute(query)
     groups = cursor.fetchall()
-    print('groups', groups, type(groups), type(groups[0][0]))
-    print('--------------')
     return groups
 
 # get dialogue data from database
@@ -73,6 +68,4 @@ def getDialogue():
     query = "SELECT * FROM dialogue"
     cursor.execute(query)
     dialogue = cursor.fetchall()
-    print('dialogue', dialogue, type(dialogue))
-    print('--------------')
     return dialogue
