@@ -1,0 +1,15 @@
+body {
+    font-size: 12px;
+}
+.top-nav {
+    background-color: rgba(238, 238, 238, 0.8);
+    border-bottom: 1px solid gray;
+}
+.search {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+label {
+    font-weight: 600;
+}

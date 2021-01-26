@@ -3,15 +3,15 @@ import pandas as pd
 
 
 mydb = mysql.connector.connect(host='localhost', username='root', password='', database='interact_tool')
-cursor = mydb.cursor()
+cursor = mydb.cursor(dictionary=True)
 
 if cursor:
     print('Connected to DB.')
 else:
     print('Connect failed')
 
-def empty_table():
-    query = 'TRUNCATE TABLE dialogue'
+def empty_table(tb_name):
+    query = 'TRUNCATE TABLE {}'.format(tb_name)
     cursor.execute(query)
     mydb.commit()
 
