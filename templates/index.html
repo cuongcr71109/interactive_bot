@@ -11,7 +11,99 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   </head>
   <body>
-      <a href="/logout">Log out</a>
+      <nav class="navbar navbar-light bg-light">
+          <a href="/index" class="navbar-brand"><img src="#" alt="" width="25" height="25" class="d-inline-block">WEB NAME</a>
+          <a href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+      </nav>
+      <div class="container-fluid d-flex justify-content-center">
+          <div class="col-12 col-md-6">
+              <!-- group here -->
+              <div class="card-group">
+                  <div class="card">
+                      <div class="card-header">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <a name="addGroup-btn" id="addGroup-btn" class="btn btn-primary" href="/insertGroups" role="button">Add Group</a>
+                              </div>
+                              <div class="custom-file">
+                                  <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                                  <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                              </div>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                          <table class="table table-sm table-striped table-bordered">
+                              <thead class="thead-light">
+                                  <tr>
+                                      <th>Group ID</th>
+                                      <th>Group Title</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for i in groups %}
+                                  <tr>
+                                      <td>{{ i['group_id'] }}</td>
+                                      <td>{{ i['group_title'] }}</td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                          </table>
+                      </div>
+                      <div class="card-footer">
+                        <a name="start-btn" id="start-btn" class="btn btn-success" href="/start" role="button">Start Interact</a>
+                    </div>
+                  </div>
+              </div>
+          </div>
+
+
+          <div class="col-12 col-md-6">
+              <!-- content here -->
+              <div class="card-group">
+                  <div class="card">
+                      <div class="card-header">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <a name="addDialog-btn" id="addDialog-btn" class="btn btn-primary" href="/insertDialogue" role="button">Add lines</a>
+                            </div>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                          <table class="table table-striped table-bordered table-sm">
+                              <thead class="thead-light">
+                                  <tr>
+                                      <th>User</th>
+                                      <th>Content</th>
+                                      <th>Group ID</th>
+                                  </tr>
+                                  {% for i in dialog %}
+                                  <tr>
+                                      <td>{{ i['user_id'] }}</td>
+                                      <td>{{ i['content'] }}</td>
+                                      <td>{{ i['group_id']}}</td>
+                                  </tr>
+                                  {% endfor %}
+                              </thead>
+                              <tbody></tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+
+
+
+
+
+
+
+
       
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
