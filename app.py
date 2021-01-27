@@ -3,6 +3,7 @@ import re
 from flask import Flask, render_template, redirect, session, request, url_for
 from functools import wraps
 import hashlib
+import threading
 
 from db import *
 
@@ -202,6 +203,8 @@ def insertDialog():
     print(cursor.rowcount, "was inserted to [{}] table".format(session['username']))
     return redirect(url_for('index'))
 
+
+
 @app.route('/start')
 def main_function():
     dialogue = getDialogue()
@@ -220,18 +223,13 @@ def main_function():
         cursor.execute(query)
         gr_typelink = cursor.fetchone()
         # gr_typelink [('private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0')]
-        print('ok')
 
-        try:
-            client = TelegramClient(session='{}'.format(user['phone']), api_id = int(user['api_id']), api_hash = user['api_hash'])
-
-        except Error:
-            print(Error)
-        # print(client)
-        # with client:
-        #     if not checkin_group(client, group_id):
-        #         join_group(client, gr_typelink['group_type'], gr_typelink['group_link'])
-        #         client.loop.run_until_complete(interact(client, group_id, content))
-        #     else:
-        #         client.loop.run_until_complete(interact(client, group_id, content))
+        client = TelegramClient(session='{}'.format(user['phone']), api_id = int(user['api_id']), api_hash = user['api_hash'])
+        with client:
+            if not checkin_group(client, group_id):
+                join_group(client, gr_typelink['group_type'], gr_typelink['group_link'])
+                client.loop.run_until_complete(interact(client, group_id, content))
+            else:
+                client.loop.run_until_complete(interact(client, group_id, content))
     return redirect(url_for('index'))
+

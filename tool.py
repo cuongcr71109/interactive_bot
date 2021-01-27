@@ -5,6 +5,7 @@ from telethon.tl.functions.channels import JoinChannelRequest
 from time import sleep
 
 from db import *
+from app import *
 
 # send message
 async def interact(client, group_id, content):
