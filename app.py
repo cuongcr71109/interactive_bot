@@ -58,8 +58,6 @@ def getUser():
     query = "SELECT * FROM users"
     cursor.execute(query)
     users = cursor.fetchall()
-    print(users)
-    print('---------------------')
     return users
 
 # get groups info from database
@@ -67,8 +65,6 @@ def getGroup():
     query = "SELECT * FROM groups WHERE customer_id = {}".format(session['id'])
     cursor.execute(query)
     groups = cursor.fetchall()
-    print(groups)
-    print('---------------------')
     return groups
 
 # get dialogue data from database
@@ -76,8 +72,6 @@ def getDialogue():
     query = "SELECT * FROM {}".format(session['username'])
     cursor.execute(query)
     dialogue = cursor.fetchall()
-    print(dialogue)
-    print('---------------------')
     return dialogue
 
 # get data from excel file and insert data to database
