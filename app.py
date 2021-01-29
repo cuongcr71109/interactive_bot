@@ -1,9 +1,14 @@
 from configparser import Error
+import os
 import re
 from flask import Flask, render_template, redirect, session, request, url_for
 from functools import wraps
 import hashlib
 import threading
+from werkzeug.utils import secure_filename
+
+import flask
+from flask.helpers import flash
 
 from db import *
 
@@ -37,10 +42,11 @@ def join_group(client, group_type, group_link):
         print('Join to public')
 # ---------------------------
 
+UPLOAD_FOLDER = 'uploaded_files'
 
 app = Flask(__name__)
 app.secret_key = b'\xa3\x92.\x8b\\\x06\x17\x9e1\x1c4\xb6\xf2\xff}\xfb'
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # get data from Excel file
 def getExcel(file):
@@ -226,4 +232,42 @@ def main_function():
             else:
                 client.loop.run_until_complete(interact(client, group_id, content))
     return redirect(url_for('index'))
+
+@app.route('/uploadGroupFile', methods=['GET', 'POST'])
+def uploadGroupFile():
+    if request.method == 'POST':
+        if 'groupfile' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        groupfile = request.files['groupfile']
+        if groupfile.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        if groupfile:
+            filename = secure_filename(groupfile.filename)
+            groupfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            flash('uploaded')
+    return redirect(url_for('index'))
+
+
+@app.route('/uploadLinesFile', methods=['GET', 'POST'])
+def uploadLinesFile():
+    if request.method == 'POST':
+        if 'linesfile' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        linesfile = request.files['linesfile']
+        if linesfile.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        if linesfile:
+            filename = secure_filename(linesfile.filename)
+            linesfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            flash('uploaded')
+    return redirect(url_for('index'))
+
 
