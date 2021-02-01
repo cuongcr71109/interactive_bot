@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   </head>
   <body>
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <a href="/index" class="navbar-brand"><img src="#" alt="" width="25" height="25" class="d-inline-block">WEB NAME</a>
+      <nav class="navbar navbar-expand-sm navbar-light bg-light">
+          <a href="/index" class="navbar-brand text-primary"><i class="fa fa-telegram" aria-hidden="true"></i></a>
           <ul class="navbar-nav mr-auto">
             {% if session['isAdmin'] == 1 %}
               <li class="nav-item">
@@ -36,7 +36,7 @@
                                     <input type="file" class="form-control-file" name="groupfile" id="groupfile" placeholder="Browse" aria-describedby="fileHelpId" accept=".xls, .xlsx, .csv">
                                     <small id="fileHelpId" class="form-text text-muted"></small>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Add Users</button>
+                                <button type="submit" class="btn btn-sm btn-primary">Add Users</button>
                             </form>
                         </div>
                         <div class="card-body">
@@ -60,7 +60,7 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a name="schedule-btn" id="schedule-btn" class="btn btn-success" href="/schedule-tasks" role="button">Schedule</a>
+                            <a name="schedule-btn" id="schedule-btn" class="btn btn-sm btn-success" href="/schedule-tasks" role="button">Schedule</a>
                         </div>
                     {% else %}                
                         <div class="card-header">
@@ -84,7 +84,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <a name="schedule-btn" id="schedule-btn" class="btn btn-success" href="/schedule-tasks" role="button">Schedule</a>
+                            <a name="schedule-btn" id="schedule-btn" class="btn btn-sm btn-success" href="/schedule-tasks" role="button">Schedule</a>
                         </div>
                     {% endif %}
                   </div>
@@ -102,7 +102,8 @@
                                 <input type="file" class="form-control-file" name="groupfile" id="groupfile" placeholder="Browse" aria-describedby="fileHelpId" accept=".xls, .xlsx, .csv">
                                 <small id="fileHelpId" class="form-text text-muted"></small>
                             </div>
-                            <button type="submit" class="btn btn-primary">Add Group</button>
+                            <button type="submit" class="btn btn-sm btn-primary">Add Group</button>
+                            <a name="deleteGroup-btn" id="deleteGroup-btn" class="btn btn-sm btn-danger" href="/deleteAllGroups" role="button">Delete Groups</a>
                         </form>
                       </div>
                       <div class="card-body">
@@ -124,7 +125,7 @@
                           </table>
                       </div>
                       <div class="card-footer">
-                        <a name="start-btn" id="start-btn" class="btn btn-success" href="/start" role="button">Start Interact</a>
+                        <a name="start-btn" id="start-btn" class="btn btn-sm btn-success" href="/start" role="button">Start Interact</a>
                     </div>
                   </div>
               </div>
@@ -136,13 +137,14 @@
               <div class="card-group">
                   <div class="card">
                       <div class="card-header">
-                        <form action="/uploadLinesFile" method="post" enctype="multipart/form-data">
+                        <form action="/uploadContentFile" method="post" enctype="multipart/form-data">
                             <div class="form-group">
-                                <label for="linesfile">Choose file to add lines:</label>
-                                <input type="file" class="form-control-file" name="linesfile" id="linesfile" placeholder="Browse" aria-describedby="fileHelpId" accept=".xls, .xlsx, .csv">
+                                <label for="contentfile">Choose file to add content:</label>
+                                <input type="file" class="form-control-file" name="contentfile" id="contentfile" placeholder="Browse" aria-describedby="fileHelpId" accept=".xls, .xlsx, .csv">
                                 <small id="fileHelpId" class="form-text text-muted"></small>
                             </div>
-                            <button type="submit" class="btn btn-primary">Add lines</button>
+                            <button type="submit" class="btn btn-sm btn-primary">Add content</button>
+                            <a name="deleteContent-btn" id="deleteContent-btn" class="btn btn-sm btn-danger" href="/deleteAllContent" role="button">Delete All Content</a>
                         </form>
                       </div>
                       <div class="card-body">
@@ -152,12 +154,14 @@
                                       <th>User</th>
                                       <th>Content</th>
                                       <th>Group ID</th>
+                                      <th>Delay(s)</th>
                                   </tr>
                                   {% for i in dialog %}
                                   <tr>
                                       <td>{{ i['user_id'] }}</td>
                                       <td>{{ i['content'] }}</td>
                                       <td>{{ i['group_id']}}</td>
+                                      <td>{{ i['delay']}}</td>
                                   </tr>
                                   {% endfor %}
                               </thead>
