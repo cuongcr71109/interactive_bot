@@ -11,13 +11,24 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   </head>
   <body>
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+      <a href="/index" class="navbar-brand text-primary"><i class="fa fa-telegram" aria-hidden="true"></i></a>
+      <ul class="navbar-nav mr-auto">
+        {% if session['isAdmin'] == 1 %}
+          <li class="nav-item active">
+              <a href="/register" class="nav-link"><i class="fa fa-user-plus" aria-hidden="true"></i>New account</a>
+            </li>
+            <li class="nav-item">
+              <a href="/renderSetAdmin" class="nav-link"><i class="fa fa-cog" aria-hidden="true"></i> Set ADMIN</a>
+            </li>
+        {% endif %}
+          <li class="nav-item">
+              <a href="/logout" class="nav-link"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+            </li>
+      </ul>
+    </nav>
     <div class="row justify-content-center align-items-center">
-        <div class="card">
-          <div class="card-header">
-            <p class="text-center">Sign up with your socials:</p>
-            <a name="fb_btn" id="fb_btn" class="btn btn-primary" href="https://fb.com" role="button"><i class="fa fa-facebook" aria-hidden="true"></i> Sign up with Facebook</a>
-            <a name="google_btn" id="google_btn" class="btn btn-danger" href="https://google.com" role="button"><i class="fa fa-google-plus" aria-hidden="true"></i> Sign up with Google+</a>
-          </div>
+        <div class="card w-50">
           <div class="card-body">
             <form name="regForm" method="POST">
               <div class="form-group">
@@ -40,12 +51,9 @@
                 <input type="text" name="phone" id="phone" class="form-control" placeholder="Enter your phone number" aria-describedby="phone_Error">
                 <small id="phone_Error" class="text-danger">{{phone_Error}}</small>
               </div>
-              <button type="submit" class="btn btn-success w-100"><i class="fa fa-user-plus" aria-hidden="true"></i> Sign up</button>
+              <button type="submit" class="btn btn-success w-100"><i class="fa fa-user-plus" aria-hidden="true"></i> Create new account</button>
               <p class="text-danger text-center" id="regError">{{regError}}</p>
           </form>
-          </div>
-          <div class="card-footer">
-            <p>Already have an account? <a href="/login">Sign in now!</a></p>
           </div>
         </div>
     </div>

@@ -156,7 +156,7 @@ def login():
         password_hash = hashlib.md5(password_raw.encode())
         password = password_hash.hexdigest()
 
-        cursor.execute('SELECT * FROM customers WHERE username = %s AND password = %s', (username, password)) 
+        cursor.execute('SELECT * FROM customers WHERE username = %s AND password = %s', (username, password))
         account = cursor.fetchone()
 
         if account:
@@ -304,6 +304,19 @@ def insertUsers():
     cursor.executemany(query, val)
     mydb.commit()
     print(cursor.rowcount, "was inserted to [users] table")
+
+@app.route('/renderSetAdmin')
+def renderSetAdmin():
+    return render_template('setadmin.html')
+
+@app.route('/setAdmin', methods=['GET', 'POST'])
+@admin_required
+def setAdmin():
+    username = request.form['setAdmin']
+    query = 'UPDATE customers SET isAdmin = 1 WHERE username = "{}"'.format(username)
+    cursor.execute(query)
+    mydb.commit()
+    return redirect(url_for('index'))
 
 @app.route('/start')
 def start():
