@@ -1,18 +1,12 @@
-from configparser import Error
 import os
 import re
 from flask import Flask, render_template, redirect, session, request, url_for
+from flask_apscheduler import APScheduler
 from functools import wraps
 import hashlib
-import threading
 from werkzeug.utils import secure_filename
-
-import flask
 from flask.helpers import flash
-
 from db import *
-
-# ----------------
 from telethon.sync import TelegramClient, events, types
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -40,14 +34,36 @@ def join_group(client, group_type, group_link):
     elif group_type == 'public':
         join = client(JoinChannelRequest(channel=group_link))
         print('Join to public')
+
+def main_function():
+    dialogue = getDialogue()
+    for dial in dialogue:
+        group_id = int(dial['group_id'])
+        content = dial['content']
+
+        # get api_id and api_hash to create Client
+        query = 'SELECT api_id, api_hash, phone FROM users WHERE id = {}'.format(dial['user_id'])
+        cursor.execute(query)
+        user = cursor.fetchone()
+        # user [{'api_id': 2484767, 'api_hash': 'df8557fedd7d125f1128eec0fb021f27', 'phone': '84856852624'}]
+
+        # get group_type and group_link to join
+        query = 'SELECT group_type, group_link FROM groups WHERE group_id = {}'.format(group_id)
+        cursor.execute(query)
+        gr_typelink = cursor.fetchone()
+        # gr_typelink [('private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0')]
+
+        client = TelegramClient(session='{}'.format(user['phone']), api_id = int(user['api_id']), api_hash = user['api_hash'])
+        with client:
+            if not checkin_group(client, group_id):
+                join_group(client, gr_typelink['group_type'], gr_typelink['group_link'])
+                client.loop.run_until_complete(interact(client, group_id, content))
+            else:
+                client.loop.run_until_complete(interact(client, group_id, content))
+
 # ---------------------------
 
-UPLOAD_FOLDER = 'uploaded_files'
-
-app = Flask(__name__)
-app.secret_key = b'\xa3\x92.\x8b\\\x06\x17\x9e1\x1c4\xb6\xf2\xff}\xfb'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+# DATABASE FUNCTIONS ---------------
 # get data from Excel file
 def getExcel(file):
     data = pd.read_excel(file)
@@ -88,6 +104,7 @@ def insertUsers():
     cursor.executemany(query, val)
     mydb.commit()
     print(cursor.rowcount, "was inserted to [users] table")
+# end database functions -------------
 
 
 # Decorators
@@ -99,6 +116,25 @@ def login_required(f):
         else:
             return redirect('/')
     return wrap
+def admin_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if session['isAdmin'] == 1:
+            return f(*args, **kwargs)
+        else:
+            return redirect('/index')
+    return wrap
+
+# FLASK ROUTES ---------------
+UPLOAD_FOLDER = "uploaded_files"
+
+app = Flask(__name__)
+app.secret_key = b'\xa3\x92.\x8b\\\x06\x17\x9e1\x1c4\xb6\xf2\xff}\xfb'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
 
 @app.route('/')
 def main():
@@ -115,7 +151,7 @@ def index():
 
     dialogue = getDialogue()
     # dialogue [{'id': 1, 'customer_id': 0, 'user_id': 1, 'content': 'Hello.', 'group_id': '-1001158850531'}]
-    return render_template('index.html', groups = groups, dialog = dialogue)
+    return render_template('index.html', groups = groups, dialog = dialogue, session = session)
 
 @app.route('/login', methods =['GET', 'POST']) 
 def login(): 
@@ -134,6 +170,7 @@ def login():
             session['id'] = account['id']
             session['username'] = account['username']
             session['phone'] = account['phone']
+            session['isAdmin'] = account['isAdmin']
             msg = 'Logged in successfully! Redirecting...'
             return redirect('/index')
         else:
@@ -147,7 +184,8 @@ def logout():
     session.pop('username', None) 
     return redirect(url_for('login')) 
   
-@app.route('/register', methods =['GET', 'POST']) 
+@app.route('/register', methods =['GET', 'POST'])
+@admin_required
 def register(): 
     username_Error = '' 
     password_Error = ''
@@ -176,62 +214,23 @@ def register():
         else: 
             cursor.execute('INSERT INTO customers VALUES (NULL, %s, %s, %s, %s)', (username, password, fname, phone, )) 
             mydb.commit()
-            newTable(request.form['username'])
+
+            newTable(request.form['username']) #create new table on db for new user
+
+            try:
+                # create new folders to store user's uploaded files
+                new_folder = os.path.join(app.config['UPLOAD_FOLDER'], request.form['username'])
+                os.makedirs(new_folder)
+            except OSError:
+                print('Folder existed')
+                pass
+
             regError = 'You have successfully registered! Redirecting...'
             return redirect(url_for('login'))
     elif request.method == 'POST':
         regError = 'Please fill out the form !'
     return render_template('register.html', regError = regError, username_Error = username_Error, password_Error = password_Error, phone_Error = phone_Error)
 
-@app.route('/insertGroups')
-def insertGroups():
-    val = getExcel('groups.xlsx')
-    # val [[1, 1, -1001158850531, 'Test BOT', 'private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0']]
-    query =  "INSERT IGNORE INTO groups (id, customer_id, group_id, group_title, group_type, group_link) VALUES (%s, %s, %s, %s, %s, %s)"
-    cursor.executemany(query, val)
-    mydb.commit()
-    print(cursor.rowcount, "was inserted to [groups] table")
-    return redirect(url_for('index'))
-
-@app.route('/insertDialogue')
-def insertDialog():
-    # empty_table()
-    query =  "INSERT IGNORE INTO {} (id, user_id, content, group_id) VALUES (%s, %s, %s, %s)".format(session['username'])
-    val = getExcel('dialogue.xlsx')
-    cursor.executemany(query, val)
-    mydb.commit()
-    print(cursor.rowcount, "was inserted to [{}] table".format(session['username']))
-    return redirect(url_for('index'))
-
-
-
-@app.route('/start')
-def main_function():
-    dialogue = getDialogue()
-    for dial in dialogue:
-        group_id = int(dial['group_id'])
-        content = dial['content']
-
-        # get api_id and api_hash to create Client
-        query = 'SELECT api_id, api_hash, phone FROM users WHERE id = {}'.format(dial['user_id'])
-        cursor.execute(query)
-        user = cursor.fetchone()
-        # user [{'api_id': 2484767, 'api_hash': 'df8557fedd7d125f1128eec0fb021f27', 'phone': '84856852624'}]
-
-        # get group_type and group_link to join
-        query = 'SELECT group_type, group_link FROM groups WHERE group_id = {}'.format(group_id)
-        cursor.execute(query)
-        gr_typelink = cursor.fetchone()
-        # gr_typelink [('private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0')]
-
-        client = TelegramClient(session='{}'.format(user['phone']), api_id = int(user['api_id']), api_hash = user['api_hash'])
-        with client:
-            if not checkin_group(client, group_id):
-                join_group(client, gr_typelink['group_type'], gr_typelink['group_link'])
-                client.loop.run_until_complete(interact(client, group_id, content))
-            else:
-                client.loop.run_until_complete(interact(client, group_id, content))
-    return redirect(url_for('index'))
 
 @app.route('/uploadGroupFile', methods=['GET', 'POST'])
 def uploadGroupFile():
@@ -247,10 +246,18 @@ def uploadGroupFile():
         
         if groupfile:
             filename = secure_filename(groupfile.filename)
-            groupfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            flash('uploaded')
-    return redirect(url_for('index'))
+            path = app.config['UPLOAD_FOLDER'] + '\\' +  session['username']
+            groupfile.save(os.path.join(path, filename))
 
+            filepath = path + '\\' + filename
+            print(filepath)
+            val = getExcel(filepath)
+            # val [[1, 1, -1001158850531, 'Test BOT', 'private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0']]
+            query =  "INSERT IGNORE INTO groups (id, customer_id, group_id, group_title, group_type, group_link) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.executemany(query, val)
+            mydb.commit()
+            print(cursor.rowcount, "was inserted to [groups] table")
+    return redirect(url_for('index'))
 
 @app.route('/uploadLinesFile', methods=['GET', 'POST'])
 def uploadLinesFile():
@@ -266,8 +273,23 @@ def uploadLinesFile():
         
         if linesfile:
             filename = secure_filename(linesfile.filename)
-            linesfile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            flash('uploaded')
+            path = app.config['UPLOAD_FOLDER'] + '\\' +  session['username']
+            linesfile.save(os.path.join(path, filename))
+            
+            filepath = path + '\\' + filename
+            query =  "INSERT IGNORE INTO {} (id, user_id, content, group_id) VALUES (%s, %s, %s, %s)".format(session['username'])
+            val = getExcel(filepath)
+            cursor.executemany(query, val)
+            mydb.commit()
+            print(cursor.rowcount, "was inserted to [{}] table".format(session['username']))
     return redirect(url_for('index'))
 
+@app.route('/start')
+def start():
+    main_function()
+    return redirect(url_for('index'))
 
+# @app.route('/schedule-task')
+# def schedule():
+
+# end flask routes ------------
