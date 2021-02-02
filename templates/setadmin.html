@@ -27,15 +27,79 @@
               </li>
         </ul>
     </nav>
-    <div class="container-fluid">
-        <form action="/setAdmin" method="POST" class="w-50">
-            <div class="form-group form-group-inline">
-              <label for="setAdmin">Enter username to set as ADMIN</label>
-              <input type="text" name="setAdmin" id="setAdmin" class="form-control" placeholder="Enter username" aria-describedby="helpId">
-              <small id="helpId" class="text-muted"></small>              
-            </div>            
-            <button type="submit" class="btn btn-success">Set as ADMIN</button>
-        </form>
+    <div class="container-fluid d-flex">
+      <div class="col-12 col-md-4">
+        <div class="card">
+          <div class="card-header">List of USERS:</div>
+          <div class="card-body">
+            <table class="table table-sm table-striped table-bordered">
+              <thead class="thead-light">
+                <tr>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in customer %}
+                <tr>
+                  <td scope="row">{{ c['username'] }}</td>
+                  <td>{{ c['fname'] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+    
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card">
+          <div class="card-header">List of ADMIN:</div>
+          <div class="card-body">
+            <table class="table table-sm table-striped table-bordered">
+              <thead class="thead-light">
+                <tr>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for a in admin %}
+                <tr>
+                  <td scope="row">{{ a['username'] }}</td>
+                  <td>{{ a['fname'] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <form action="/setAdmin" method="post">
+              <div class="form-group">
+                <label for="setAdmin">Enter username to set as ADMIN:
+                </label>
+                <input type="text" name="setAdmin" id="setAdmin" class="form-control" placeholder="Enter username" aria-describedby="helpId">
+                <small id="helpId" class="text-muted">Many usernames is seperated by 'SPACE'</small>
+              </div>
+              <button type="submit" class="btn btn-success">Set as ADMIN</button>
+            </form>
+          </div>
+          <div class="card-footer">
+            <form action="/revokeAdmin" method="post">
+              <div class="form-group">
+                <label for="revokeAdmin">Enter username to revoke ADMIN access:</label>
+                <input type="text" name="revokeAdmin" id="revokeAdmin" class="form-control" placeholder="Enter username" aria-describedby="helpId">
+                <small id="helpId" class="text-muted">Many usernames is seperated by 'SPACE'</small>
+              </div>
+              <button type="submit" class="btn btn-success">Revoke ADMIN</button>
+            </form>
+          </div>
+        </div>
+      </div>        
     </div>
       
     <!-- Optional JavaScript -->

@@ -22,7 +22,7 @@
                   <a href="/renderSetAdmin" class="nav-link"><i class="fa fa-cog" aria-hidden="true"></i> Set ADMIN</a>
                 </li>
             {% endif %}
-              <li class="nav-item">
+                <li class="nav-item">
                   <a href="/logout" class="nav-link"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
                 </li>
           </ul>
@@ -43,10 +43,12 @@
                             </form>
                         </div>
                         <div class="card-body">
-                            <div class="input-group">
-                                <label for="inputGroupSelect04">Start send messages after each:</label>
-                                <select class="custom-select" id="inputGroupSelect04" aria-label="Example select with button addon">
+                            <form action="/schedule-tasks" method="post">
+                                <div class="form-group">
+                                  <label for="hourSelect">Start send messages after each:</label>
+                                  <select class="form-control" name="hourSelect" id="hourSelect">
                                     <option selected disabled>Hour</option>
+                                    <option value="0.1">0.1</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -59,18 +61,19 @@
                                     <option value="10">10</option>
                                     <option value="11">11</option>
                                     <option value="12">12</option>
-                                </select>                       
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <a name="schedule-btn" id="schedule-btn" class="btn btn-sm btn-success" href="/schedule-tasks" role="button">Schedule</a>
+                                  </select>
+                                </div>
+                                <button type="submit" class="btn btn-success">Schedule</button>
+                            </form>
                         </div>
                     {% else %}                
                         <div class="card-header">
-                            <div class="input-group">
-                                <label for="inputGroupSelect04">Start send messages after each:</label>
-                                <select class="custom-select" id="inputGroupSelect04" aria-label="Example select with button addon">
+                            <form action="/schedule-tasks" method="post">
+                                <div class="form-group">
+                                  <label for="hourSelect">Start send messages after each:</label>
+                                  <select class="form-control" name="hourSelect" id="hourSelect">
                                     <option selected disabled>Hour</option>
+                                    <option value="0.1">0.1</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -83,11 +86,10 @@
                                     <option value="10">10</option>
                                     <option value="11">11</option>
                                     <option value="12">12</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <a name="schedule-btn" id="schedule-btn" class="btn btn-sm btn-success" href="/schedule-tasks" role="button">Schedule</a>
+                                  </select>
+                                </div>
+                                <button type="submit" class="btn btn-success">Schedule</button>
+                            </form>
                         </div>
                     {% endif %}
                   </div>

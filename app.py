@@ -1,4 +1,6 @@
+from datetime import date, datetime
 import os
+from random import triangular
 import re
 from flask import Flask, render_template, redirect, session, request, url_for
 from flask_apscheduler import APScheduler
@@ -307,23 +309,55 @@ def insertUsers():
 
 @app.route('/renderSetAdmin')
 def renderSetAdmin():
-    return render_template('setadmin.html')
+    cursor.execute('SELECT username, fname FROM customers WHERE isAdmin = 0')
+    customer = cursor.fetchall()
+    cursor.execute('SELECT username, fname FROM customers WHERE isAdmin = 1')
+    admin = cursor.fetchall()
+    return render_template('setadmin.html', customer = customer, admin = admin)
 
 @app.route('/setAdmin', methods=['GET', 'POST'])
 @admin_required
 def setAdmin():
-    username = request.form['setAdmin']
-    query = 'UPDATE customers SET isAdmin = 1 WHERE username = "{}"'.format(username)
+    username = tuple(request.form['setAdmin'].split())
+    print(username)
+    if len(username) != 1:
+        query = 'UPDATE customers SET isAdmin = 1 WHERE username IN {}'.format(username)
+    else:
+        query = 'UPDATE customers SET isAdmin = 1 WHERE username = "{}"'.format(username[0])
     cursor.execute(query)
     mydb.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('renderSetAdmin'))
+
+@app.route('/revokeAdmin', methods=['GET', 'POST'])
+@admin_required
+def revokeAdmin():
+    username = tuple(request.form['revokeAdmin'].split())
+    print(username)
+    if len(username) != 1:
+        query = 'UPDATE customers SET isAdmin = 0 WHERE username IN {}'.format(username)
+    else:
+        query = 'UPDATE customers SET isAdmin = 0 WHERE username = "{}"'.format(username[0])
+    cursor.execute(query)
+    mydb.commit()
+    return redirect(url_for('renderSetAdmin'))
 
 @app.route('/start')
 def start():
     main_function()
     return redirect(url_for('index'))
 
-# @app.route('/schedule-task')
-# def schedule():
+
+
+@app.route('/schedule-tasks', methods=['GET', 'POST'])
+def scheduler():
+    now = datetime.now().strftime('%H%M%S')
+    app.apscheduler.add_job(id=session['username']+now, trigger='cron', func=getTime, minute='*/1')
+    return redirect(url_for('index'))
+    # return 'Success'
+
+def getTime():
+    time = datetime.now().strftime('%H:%M')
+    print(time)
+    return time
 
 # end flask routes ------------
