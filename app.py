@@ -9,8 +9,9 @@ import hashlib
 from werkzeug.utils import secure_filename
 from flask.helpers import flash
 from db import *
-from telethon.sync import TelegramClient, events, types
-from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.sync import TelegramClient
+from telethon.tl.types import ChatInvite,ChatInviteAlready, Chat, ChannelForbidden
+from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInviteRequest
 from telethon.tl.functions.channels import JoinChannelRequest
 from time import sleep
 # ---------------
@@ -20,22 +21,29 @@ async def interact(client, group_id, content):
     print('From', session['username'], ':', me.phone, 'sent to {} -->'.format(group_id), content)
 
 # check user in group or not
-def checkin_group(client, group_id):
-    dialog_id = []
-    for dialog in client.iter_dialogs():
-        dialog_id.append(dialog.id)
-    return group_id in dialog_id
-
-# join group if user is not in group
-def join_group(client, group_type, group_link):
+def check_and_join(client, group_type, group_link):
     if group_type == 'private':
-        group_link = group_link[22:]
-        join = client(ImportChatInviteRequest(hash=group_link))
-        print('Join to private')
-
+        hash = group_link[22:]
+        check = client(CheckChatInviteRequest(hash))
+        if isinstance(check, ChatInvite):
+            print('No join')
+            join = client(ImportChatInviteRequest(hash = hash))
+            print('join.chats[0].id', join.chats[0].id)
+            return join.chats[0].id
+        elif isinstance(check, ChatInviteAlready):
+            if isinstance(check.chat, Chat):
+                print('Joined')
+                print(check.chat.id)
+                return check.chat.id
+            elif isinstance(check.chat, ChannelForbidden):
+                print('be kicked')
     elif group_type == 'public':
-        join = client(JoinChannelRequest(channel=group_link))
-        print('Join to public')
+        try:
+            check = client(JoinChannelRequest(channel = group_link))
+            print(check.chats[0].id)
+            return check.chats[0].id
+        except:
+            print("be kicked")
 
 def main_function():
     dialogue = getDialogue()
@@ -57,11 +65,8 @@ def main_function():
 
         client = TelegramClient(session='{}'.format(user['phone']), api_id = int(user['api_id']), api_hash = user['api_hash'])
         with client:
-            if not checkin_group(client, group_id):
-                join_group(client, gr_typelink['group_type'], gr_typelink['group_link'])
-                client.loop.run_until_complete(interact(client, group_id, content))                
-            else:
-                client.loop.run_until_complete(interact(client, group_id, content))
+            check_and_join(client, gr_typelink['group_type'], gr_typelink['group_link'])
+            client.loop.run_until_complete(interact(client, group_id, content))
         sleep(dial['delay'])
 
 # ---------------------------
@@ -150,8 +155,7 @@ def index():
     return render_template('index.html', groups = groups, dialog = dialogue, session = session)
 
 @app.route('/login', methods =['GET', 'POST']) 
-def login(): 
-    msg = ''
+def login():
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username'] 
         password_raw = request.form['password']
@@ -171,7 +175,7 @@ def login():
             return redirect('/index')
         else:
             msg = 'Incorrect username / password !'
-    return render_template('login.html', msg = msg) 
+    return render_template('login.html') 
   
 @app.route('/logout') 
 def logout(): 
@@ -182,11 +186,7 @@ def logout():
   
 @app.route('/register', methods =['GET', 'POST'])
 # @admin_required
-def register(): 
-    username_Error = '' 
-    password_Error = ''
-    phone_Error = ''
-    regError = ''
+def register():
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'phone' in request.form : 
         username = request.form['username'] 
         password_raw = request.form['password']
@@ -199,14 +199,6 @@ def register():
         account = cursor.fetchone() 
         if account: 
             username_Error = 'Account already exists !'
-        elif not re.match(r'^[+][0-9]', phone): 
-            phone_Error = 'Invalid phone number! Example: +84123456789'
-        elif not re.match(r'[A-Za-z0-9]+', username): 
-            username_Error = 'Username must contain only characters and numbers !'
-        elif not re.match(r'[A-Za-z ]+', fname): 
-            username_Error = 'Name must contain only characters and space!'
-        elif not username or not password or not phone:
-            regError = 'Fields can not be empty'
         else: 
             cursor.execute('INSERT INTO customers VALUES (NULL, %s, %s, %s, %s, 0)', (username, password, fname, phone)) 
             mydb.commit()
@@ -223,9 +215,8 @@ def register():
 
             regError = 'You have successfully registered! Redirecting...'
             return redirect(url_for('login'))
-    elif request.method == 'POST':
-        regError = 'Please fill out the form !'
-    return render_template('register.html', regError = regError, username_Error = username_Error, password_Error = password_Error, phone_Error = phone_Error)
+    elif request.method == 'GET':
+        return render_template('register.html')
 
 @app.route('/deleteAllContent')
 def deleteAllContent():
@@ -319,7 +310,6 @@ def renderSetAdmin():
 @admin_required
 def setAdmin():
     username = tuple(request.form['setAdmin'].split())
-    print(username)
     if len(username) != 1:
         query = 'UPDATE customers SET isAdmin = 1 WHERE username IN {}'.format(username)
     else:
@@ -352,12 +342,14 @@ def start():
 def scheduler():
     now = datetime.now().strftime('%H%M%S')
     app.apscheduler.add_job(id=session['username']+now, trigger='cron', func=getTime, minute='*/1')
-    return redirect(url_for('index'))
+    return redirect(url_for('index')),'alert("Schedule successfully")'
     # return 'Success'
 
 def getTime():
     time = datetime.now().strftime('%H:%M')
-    print(time)
-    return time
+    print(time, 'at', datetime.now())
+    # hourSelected = request.form['hourSelect']
+    # if time == hourSelected:
+    #     main_function()
 
 # end flask routes ------------

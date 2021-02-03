@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 01, 2021 at 12:06 PM
+-- Generation Time: Feb 03, 2021 at 07:49 AM
 -- Server version: 10.4.17-MariaDB
 -- PHP Version: 7.2.34
 
@@ -40,16 +40,16 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `user_id`, `content`, `group_id`, `delay`) VALUES
-(1, 1, 'Hello.', '-1001170310837', 1),
-(2, 3, 'Nice to see you', '-1001170310837', 1),
-(3, 2, 'Hi. How are you?', '-1001170310837', 1),
-(4, 1, 'I\'m fine. Thanks. And you?', '-1001170310837', 1),
-(5, 2, 'I\'m fine. Thanks', '-1001170310837', 1),
-(6, 2, 'Hello.', '-1001159430667', 2),
-(7, 2, 'Nice to see you', '-1001159430667', 2),
-(8, 1, 'Hi. How are you?', '-1001159430667', 2),
-(9, 3, 'I\'m fine. Thanks. And you?', '-1001159430667', 2),
-(10, 1, 'I\'m fine. Thanks', '-1001159430667', 2);
+(1, 1, 'Hello.', '-1001274866902', 1),
+(2, 3, 'Nice to see you', '-1001274866902', 1),
+(3, 2, 'Hi. How are you?', '-1001274866902', 1),
+(4, 1, 'I\'m fine. Thanks. And you?', '-1001274866902', 1),
+(5, 2, 'I\'m fine. Thanks', '-1001274866902', 1),
+(6, 3, 'Hello.', '-563690107', 2),
+(7, 2, 'Nice to see you', '-563690107', 2),
+(8, 1, 'Hi. How are you?', '-563690107', 2),
+(9, 3, 'I\'m fine. Thanks. And you?', '-563690107', 2),
+(10, 2, 'I\'m fine. Thanks', '-563690107', 2);
 
 -- --------------------------------------------------------
 
@@ -72,7 +72,7 @@ CREATE TABLE `customers` (
 
 INSERT INTO `customers` (`id`, `username`, `password`, `fname`, `phone`, `isAdmin`) VALUES
 (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'admin', '+84123456789', 1),
-(2, 'quannm', 'e10adc3949ba59abbe56e057f20f883e', 'NMQ', '+84123456789', 1),
+(2, 'quannm', 'e10adc3949ba59abbe56e057f20f883e', 'NMQ', '+84123456789', 0),
 (3, 'nmq', 'e10adc3949ba59abbe56e057f20f883e', 'NMQ', '+84123456789', 0);
 
 -- --------------------------------------------------------
@@ -99,10 +99,12 @@ INSERT INTO `groups` (`id`, `customer_username`, `group_id`, `group_title`, `gro
 (14, 'quannm', '-1001429987581', 'test', 'private', 'https://t.me/joinchat/VTvg_eT6s7Rz-AIj'),
 (15, 'quannm', '-1001170310837', 'TestKDbot', 'private', 'https://t.me/joinchat/RcGGtdG60NynCrJK'),
 (16, 'quannm', '-1001159430667', 'Test Tool', 'public', 'https://t.me/testInteractTool'),
-(31, 'admin', '-1001158850531', 'Test BOT', 'private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0'),
-(32, 'admin', '-1001429987581', 'test', 'private', 'https://t.me/joinchat/VTvg_eT6s7Rz-AIj'),
-(33, 'admin', '-1001170310837', 'TestKDbot', 'private', 'https://t.me/joinchat/RcGGtdG60NynCrJK'),
-(34, 'admin', '-1001159430667', 'Test Tool', 'public', 'https://t.me/testInteractTool');
+(35, 'admin', '-1001158850531', 'Test BOT', 'private', 'https://t.me/joinchat/HZesgX2L5zcpKvq0'),
+(36, 'admin', '-1001429987581', 'test', 'private', 'https://t.me/joinchat/VTvg_eT6s7Rz-AIj'),
+(37, 'admin', '-1001170310837', 'TestKDbot', 'private', 'https://t.me/joinchat/RcGGtdG60NynCrJK'),
+(38, 'admin', '-1001159430667', 'Test Tool', 'public', 'https://t.me/testInteractTool'),
+(39, 'admin', '-1001274866902', 'Test Interact', 'private', 'https://t.me/joinchat/H9rYoLjUYKtakiYt'),
+(40, 'admin', '-563690107', '+1 Group Test', 'private', 'https://t.me/joinchat/IZk6e7P52S4M0CA6');
 
 -- --------------------------------------------------------
 
@@ -221,13 +223,13 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `nmq`
